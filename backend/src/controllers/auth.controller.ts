@@ -3,7 +3,7 @@ import { asyncHandler } from "../middlewares/asyncHandler.middleware";
 import { loginSchema, registerSchema } from "../validators/auth.validator";
 import { loginService, registerService } from "../services/auth.service";
 import { HTTPSTATUS } from "../config/http.config";
-import { setJwtAuthCookie } from "../utils/cookie";
+import { clearJwtAuthCookie, setJwtAuthCookie } from "../utils/cookie";
 
 export const registerController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -40,5 +40,23 @@ export const loginController = asyncHandler(
         message: "Login successfully",
         user,
       });
+  }
+);
+
+export const logoutController = asyncHandler(
+  async (req: Request, res: Response) => {
+    return clearJwtAuthCookie(res).status(HTTPSTATUS.OK).json({
+      message: "User logout successfully",
+    });
+  }
+);
+
+export const authStatusController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const user = req.user; 
+    return res.status(HTTPSTATUS.OK).json({
+      message: "Authenticated User",
+      user
+    })
   }
 );
