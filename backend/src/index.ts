@@ -7,6 +7,10 @@ import { asyncHandler } from "./middlewares/asyncHandler.middleware";
 import { HTTPSTATUS } from "./config/http.config";
 import { errorHandler } from "./middlewares/errorhandler.middleware";
 import connectDatabase from "./config/database.config";
+import passport from "passport";
+
+import "./config/passport.config";
+import routes from "./routes";
 
 const app = express();
 
@@ -20,6 +24,8 @@ app.use(
   })
 );
 
+app.use(passport.initialize());
+
 app.get(
   "/health",
   asyncHandler(async (req: Request, res: Response) => {
@@ -29,6 +35,9 @@ app.get(
     });
   })
 );
+
+app.use("/api", routes)
+
 
 app.use(errorHandler);
 
