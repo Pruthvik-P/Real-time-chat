@@ -21,7 +21,7 @@ export const registerController = asyncHandler(
         message: "User created & login successfully",
         user,
       });
-  }
+  },
 );
 
 export const loginController = asyncHandler(
@@ -40,7 +40,7 @@ export const loginController = asyncHandler(
         message: "Login successfully",
         user,
       });
-  }
+  },
 );
 
 export const logoutController = asyncHandler(
@@ -48,15 +48,15 @@ export const logoutController = asyncHandler(
     return clearJwtAuthCookie(res).status(HTTPSTATUS.OK).json({
       message: "User logout successfully",
     });
-  }
+  },
 );
 
 export const authStatusController = asyncHandler(
   async (req: Request, res: Response) => {
-    const user = req.user; 
+    const user = req.user?._id;
     return res.status(HTTPSTATUS.OK).json({
       message: "Authenticated User",
-      user
-    })
-  }
+      user,
+    });
+  },
 );

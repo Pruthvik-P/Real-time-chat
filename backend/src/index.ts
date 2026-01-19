@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express, {type Request, type Response } from "express";
+import express, { type Request, type Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { Env } from "./config/env.config";
@@ -10,7 +10,7 @@ import connectDatabase from "./config/database.config";
 import passport from "passport";
 
 import "./config/passport.config";
-import routes from "./routes";
+import router from "./routes";
 
 const app = express();
 
@@ -21,7 +21,7 @@ app.use(
   cors({
     origin: Env.FRONTEND_URL,
     credentials: true,
-  })
+  }),
 );
 
 app.use(passport.initialize());
@@ -33,15 +33,14 @@ app.get(
       message: "Server is health",
       status: "OK",
     });
-  })
+  }),
 );
 
-app.use("/api", routes)
-
+app.use("/api", router);
 
 app.use(errorHandler);
 
 app.listen(Env.PORT, async () => {
   await connectDatabase();
-  console.log(`Server running on port ${Env.PORT} in ${Env.NODE_ENV} mode`)
-})
+  console.log(`Server running on port ${Env.PORT} in ${Env.NODE_ENV} mode`);
+});
