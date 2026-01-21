@@ -1,4 +1,4 @@
-import mongoose, {Document,Schema} from "mongoose";
+import mongoose, { Document, Schema } from "mongoose";
 
 export interface MessageDocument extends Document {
   chatId: mongoose.Types.ObjectId;
@@ -10,29 +10,31 @@ export interface MessageDocument extends Document {
   updatedAt: Date;
 }
 
-const messageSchema = new Schema<MessageDocument>({
-  chatId: {
-    type: Schema.Types.ObjectId,
-    ref: "Chat",
-    default: null,
+const messageSchema = new Schema<MessageDocument>(
+  {
+    chatId: {
+      type: Schema.Types.ObjectId,
+      ref: "Chat",
+      required: true,
+    },
+    content: { type: String },
+    image: { type: String },
+    sender: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    replyTo: {
+      type: Schema.Types.ObjectId,
+      ref: "Message",
+      default: null,
+    },
   },
-  content: {type: String},
-  image: {type: String},
-  sender: {
-    type: Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
-    default: null,
+  {
+    timestamps: true,
   },
-  replyTo: {
-    type: Schema.Types.ObjectId,
-    ref: "Message",
-    deafault: null,
-  },
-}, {
-  timestamps: true
-}
-)
+);
 
 const MessageModel = mongoose.model<MessageDocument>("Message", messageSchema);
+
 export default MessageModel;
