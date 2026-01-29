@@ -92,7 +92,7 @@ const SignIn = () => {
                 <div className="text-center text-sm">
                   Dont have an account?{" "}
                   <Link to="/sign-up" className="underline">
-                  Sign in</Link>
+                  Sign up</Link>
                 </div>
               </form>
             </Form>
