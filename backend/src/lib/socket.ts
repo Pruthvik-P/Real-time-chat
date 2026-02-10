@@ -24,40 +24,39 @@ export const initializeSocket = (httpServer: HTTPServer) => {
   io.use(async (socket: AuthenticatedSocket, next) => {
     try {
       const rawCookie = socket.handshake.headers.cookie;
+
       if (!rawCookie) return next(new Error("Unauthorized"));
 
-      const token = rawCookie?.split("=")?.[1]?.trim();
+      const token = extractAccessToken(rawCookie);
       if (!token) return next(new Error("Unauthorized"));
 
       const decodedToken = jwt.verify(token, Env.JWT_SECRET) as {
         userId: string;
       };
-      if (!decodedToken) return next(new Error("Unauthorized"));
+      if (!decodedToken?.userId) return next(new Error("Unauthorized"));
 
       socket.userId = decodedToken.userId;
       next();
     } catch (error) {
-      next(new Error("Internal server Error"));
+      next(new Error("Internal server error"));
     }
   });
 
   io.on("connection", (socket: AuthenticatedSocket) => {
+    const userId = socket.userId!;
+    const newSocketId = socket.id;
     if (!socket.userId) {
-      socket.disconnect();
+      socket.disconnect(true);
       return;
     }
-    const userId = socket.userId;
-    const newSocketId = socket.id;
 
-    console.log("socket connected:", { userId, newSocketId });
-
-    // register socket for user
+    //register socket for the user
     onlineUsers.set(userId, newSocketId);
 
-    //BroadCast online users to All socket
+    //BroadCast online users to all socket
     io?.emit("online:users", Array.from(onlineUsers.keys()));
 
-    //create personal room for user
+    //create personnal room for user
     socket.join(`user:${userId}`);
 
     socket.on(
@@ -66,38 +65,45 @@ export const initializeSocket = (httpServer: HTTPServer) => {
         try {
           await validateChatParticipant(chatId, userId);
           socket.join(`chat:${chatId}`);
+          console.log(`User ${userId} join room chat:${chatId}`);
+
           callback?.();
         } catch (error) {
           callback?.("Error joining chat");
         }
-      },
+      }
     );
+
     socket.on("chat:leave", (chatId: string) => {
       if (chatId) {
         socket.leave(`chat:${chatId}`);
-        console.log(`User ${userId} left room chat ${chatId}`);
+        console.log(`User ${userId} left room chat:${chatId}`);
       }
     });
+
     socket.on("disconnect", () => {
       if (onlineUsers.get(userId) === newSocketId) {
         if (userId) onlineUsers.delete(userId);
 
         io?.emit("online:users", Array.from(onlineUsers.keys()));
 
-        console.log("socket disconnected:", { userId, newSocketId });
+        console.log("socket disconnected", {
+          userId,
+          newSocketId,
+        });
       }
     });
   });
 };
 
 function getIO() {
-  if (!io) throw new Error("Socket.io not initialized");
+  if (!io) throw new Error("Socket.IO not initialized");
   return io;
 }
 
 export const emitNewChatToParticipants = (
   participantIds: string[] = [],
-  chat: any,
+  chat: any
 ) => {
   const io = getIO();
   for (const participantId of participantIds) {
@@ -105,13 +111,17 @@ export const emitNewChatToParticipants = (
   }
 };
 
-export const emitNewMessgeToChatRoom = (
-  senderId: string, // userId that sent the message
+export const emitNewMessageToChatRoom = (
+  senderId: string, //userId that sent the message
   chatId: string,
-  message: any,
+  message: any
 ) => {
   const io = getIO();
-  const senderSocketId = onlineUsers.get(senderId);
+  const senderSocketId = onlineUsers.get(senderId?.toString());
+
+  console.log(senderId, "senderId");
+  console.log(senderSocketId, "sender socketid exist");
+  console.log("All online users:", Object.fromEntries(onlineUsers));
 
   if (senderSocketId) {
     io.to(`chat:${chatId}`).except(senderSocketId).emit("message:new", message);
@@ -121,14 +131,22 @@ export const emitNewMessgeToChatRoom = (
 };
 
 export const emitLastMessageToParticipants = (
-  participantIds: string[] = [],
+  participantIds: string[],
   chatId: string,
-  lastMessage: any,
+  lastMessage: any
 ) => {
   const io = getIO();
-  const payload = {chatId, lastMessage};
+  const payload = { chatId, lastMessage };
 
-  for(const participantId of participantIds){
+  for (const participantId of participantIds) {
     io.to(`user:${participantId}`).emit("chat:update", payload);
   }
+};
+
+const extractAccessToken = (cookieHeader: string) => {
+  const cookies = cookieHeader.split(";").map((cookie) => cookie.trim());
+  const tokenPair = cookies.find((cookie) => cookie.startsWith("accessToken="));
+  if (!tokenPair) return null;
+  const token = tokenPair.slice("accessToken=".length);
+  return token ? token.trim() : null;
 };
