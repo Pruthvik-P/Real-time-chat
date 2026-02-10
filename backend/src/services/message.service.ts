@@ -3,7 +3,7 @@ import cloudinary from "../config/cloudinary.config";
 import ChatModel from "../models/chat.model";
 import MessageModel from "../models/message.model";
 import { BadRequestException, NotFoundException } from "../utils/app-error";
-import { emitLastMessageToParticipants, emitNewMessgeToChatRoom } from "../lib/socket";
+import { emitLastMessageToParticipants, emitNewMessageToChatRoom } from "../lib/socket";
 
 export const sendMessageService = async (
   userId: string,
@@ -63,7 +63,7 @@ export const sendMessageService = async (
   await chat.save();
 
   //websocket emit the new message to the chat room
-  emitNewMessgeToChatRoom(userId, chatId, newMessage);
+  emitNewMessageToChatRoom(userId, chatId, newMessage);
 
   //websocket emit the last message to members (personal room user)
   const allParticipantIds = chat.participants.map((id) => id.toString());
