@@ -10,7 +10,7 @@ interface ChatState {
   users: UserType[];
   singleChat: {
     chat: ChatType;
-    message: MessageType[];
+    messages: MessageType[];
   } | null;
   isChatsLoading: boolean;
   isUsersLoading: boolean;
