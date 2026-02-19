@@ -10,18 +10,18 @@ passport.use(
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req) => {
           const token = req.cookies.accessToken;
-          if(!token) throw new UnauthorizedException("Unauthorized access");
+          if (!token) throw new UnauthorizedException("Unauthorized access");
           return token;
         },
       ]),
       secretOrKey: Env.JWT_SECRET,
-      audience:["user"],
+      audience: ["user"],
       algorithms: ["HS256"],
     },
-    async ({userId}, done) => {
+    async ({ userId }, done) => {
       try {
         const user = userId && (await findByIdUserService(userId));
-        return done(null, user);
+        return done(null, user || false);
       } catch (error) {
         return done(null, false);
       }
@@ -31,4 +31,4 @@ passport.use(
 
 export const passportAuthenticateJwt = passport.authenticate("jwt", {
   session: false,
-})
+});

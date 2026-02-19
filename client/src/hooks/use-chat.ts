@@ -24,6 +24,7 @@ interface ChatState {
 
   addNewChat: (newChat: ChatType) => void;
   updateChatLastMessage: (chatId: string, lastMessage: MessageType) => void;
+  addNewMessage: (chatId: string, message: MessageType) => void;
 }
 
 export const useChat = create<ChatState>()((set, get) => ({
@@ -117,5 +118,17 @@ export const useChat = create<ChatState>()((set, get) => ({
         ],
       };
     });
+  },
+
+  addNewMessage: (chatId, message) => {
+    const chat = get().singleChat;
+    if (chat?.chat._id === chatId) {
+      set({
+        singleChat: {
+          chat: chat.chat,
+          messages: [...chat.messages, message],
+        },
+      });
+    }
   },
 }));
