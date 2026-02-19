@@ -6,6 +6,9 @@ import { useAuth } from "@/hooks/use-auth";
 import type { MessageType } from "@/types/chat.type";
 import { Spinner } from "@/components/ui/spinner";
 import ChatHeader from "@/components/chat/chat-header";
+import EmptyState from "@/components/empty-state";
+import ChatBody from "@/components/chat/chat-body";
+import { set } from "zod";
 
 
 const SingleChat = () => {
@@ -55,6 +58,21 @@ const SingleChat = () => {
   return <div className="h-full">
     <div className="relative h-svh flex flex-col overflow-hidden">
       <ChatHeader chat={chat} currentUserId={currentUserId}/>
+
+      {messages.length === 0 ? (
+        <EmptyState 
+          title="Start a conversion"
+          description="No messages yet. Send the first message"
+        />
+      ):(
+        <ChatBody 
+          chatId={chatId}
+          messages={messages}
+          onReply={setReplyTo}
+        />
+      )
+      }
+      {/* <ChatFooter /> */}
     </div>
   </div>
 

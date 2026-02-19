@@ -16,9 +16,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import { EyeOff, Eye } from "lucide-react";
 
 const SignUp = () => {
   const { register, isSigningUp } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
+
 
   const formSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -83,22 +87,36 @@ const SignUp = () => {
                 />
 
                 <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="******"
-                          type="password"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+  control={form.control}
+  name="password"
+  render={({ field }) => (
+    <FormItem>
+      <FormLabel>Password</FormLabel>
+      <FormControl>
+        <div className="relative">
+          <Input
+            placeholder="******"
+            type={showPassword ? "text" : "password"}
+            {...field}
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((prev) => !prev)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          >
+            {showPassword ? (
+              <EyeOff size={18} />
+            ) : (
+              <Eye size={18} />
+            )}
+          </button>
+        </div>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  )}
+/>
 
                 <Button disabled={isSigningUp} type="submit" classNamew-full>{isSigningUp && <Spinner />} Sign Up</Button>
 
