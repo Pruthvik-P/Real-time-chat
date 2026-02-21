@@ -32,9 +32,7 @@ export const NewChatPopover = memo(() => {
 
   const toggleUserSelection = (id: string) => {
     setSelectedUsers((prev) =>
-      prev.includes(id)
-        ? prev.filter((userId) => userId !== id)
-        : [...prev, id],
+      prev.includes(id) ? prev.filter((userId) => userId !== id) : [...prev, id]
     );
   };
 
@@ -215,7 +213,7 @@ const NewGroupItem = memo(
       </div>
       <span>New Group</span>
     </button>
-  ),
+  )
 );
 
 NewGroupItem.displayName = "NewGroupItem";
@@ -243,7 +241,7 @@ const ChatUserItem = memo(
       <UserAvatar user={user} />
       {isLoading && <Spinner className="absolute right-2 w-4 h-4 ml-auto" />}
     </button>
-  ),
+  )
 );
 
 ChatUserItem.displayName = "ChatUserItem";
@@ -271,7 +269,7 @@ const GroupUserItem = memo(
         onCheckedChange={() => onToggle(user._id)}
       />
     </label>
-  ),
+  )
 );
 
 GroupUserItem.displayName = "GroupUserItem";
